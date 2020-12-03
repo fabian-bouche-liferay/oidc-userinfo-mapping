@@ -1,4 +1,3 @@
-Bundle-Activator: com.liferay.samples.fbo.oidc.userinfo.mapping.UserinfoMappingActivator
 Bundle-Name: userinfo-mapping
 Bundle-SymbolicName: com.liferay.samples.fbo.oidc.userinfo.mapping
 Bundle-Version: 1.0.0
