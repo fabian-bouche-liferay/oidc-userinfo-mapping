@@ -1,0 +1,9 @@
+Bundle-Name: oidc-metadata-export-fragment
+Bundle-SymbolicName: oidc.metadata.export.fragment
+Bundle-Version: 1.0.0
+
+Fragment-Host: com.liferay.portal.security.sso.openid.connect.impl
+
+Export-Package:\
+    com.nimbusds.openid.connect.sdk.op;version=6.16.2,\
+    com.nimbusds.openid.connect.sdk.rp;version=6.16.2

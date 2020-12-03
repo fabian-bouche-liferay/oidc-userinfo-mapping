@@ -1,0 +1,9 @@
+dependencies {
+	compileOnly group: "com.liferay.portal", name: "com.liferay.portal.kernel"
+	compileOnly group: 'com.liferay', name: 'com.liferay.portal.security.sso.openid.connect.api'
+	compileOnly group: "org.osgi", name: "org.osgi.core"
+	compileOnly group: "org.osgi", name: "org.osgi.service.component.annotations"
+	compileOnly group: 'javax.servlet', name: 'javax.servlet-api'
+	compileOnly group: 'com.nimbusds', name: 'oauth2-oidc-sdk', version: '6.16.2'
+	compileOnly group: 'org.slf4j', name: 'slf4j-api'
+}
