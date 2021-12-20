@@ -3,11 +3,12 @@ package com.liferay.samples.fbo.oidc.userinfo.mapping.action;
 import com.liferay.portal.kernel.events.ActionException;
 import com.liferay.portal.kernel.events.LifecycleAction;
 import com.liferay.portal.kernel.events.LifecycleEvent;
+import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.security.sso.openid.connect.OpenIdConnectProvider;
 import com.liferay.portal.security.sso.openid.connect.OpenIdConnectProviderRegistry;
 import com.liferay.portal.security.sso.openid.connect.OpenIdConnectServiceException.ProviderException;
 import com.liferay.portal.security.sso.openid.connect.OpenIdConnectSession;
-import com.liferay.portal.security.sso.openid.connect.constants.OpenIdConnectWebKeys;
+import com.liferay.portal.security.sso.openid.connect.provider.OpenIdConnectSessionProvider;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 import com.nimbusds.openid.connect.sdk.rp.OIDCClientMetadata;
 
@@ -33,14 +34,29 @@ import org.slf4j.LoggerFactory;
 public class OIDCRoleMappingPostLoginAction implements LifecycleAction {
 
 	private final static Logger LOG = LoggerFactory.getLogger(OIDCRoleMappingPostLoginAction.class);
+
+	protected OpenIdConnectSession getOpenIdConnectSession(HttpSession httpSession) {
+
+		Object openIdConnectSessionObject =
+			_openIdConnectSessionProvider.getOpenIdConnectSession(
+				httpSession);
+
+		if (openIdConnectSessionObject instanceof OpenIdConnectSession) {
+			OpenIdConnectSession openIdConnectSession =
+				(OpenIdConnectSession)openIdConnectSessionObject;
+
+			return openIdConnectSession;
+		}
+
+		return null;
+	}
 	
 	@Override
 	public void processLifecycleEvent(LifecycleEvent lifecycleEvent) throws ActionException {
 
 		HttpSession httpSession = lifecycleEvent.getRequest().getSession(false);
-		
-		OpenIdConnectSession openIdConnectSession = (OpenIdConnectSession) httpSession.getAttribute(
-				OpenIdConnectWebKeys.OPEN_ID_CONNECT_SESSION);
+
+		OpenIdConnectSession openIdConnectSession = getOpenIdConnectSession(httpSession);
 		
 		if(openIdConnectSession == null) {
 			LOG.debug("Skipping action, the user did not sign in with OIDC");
@@ -52,9 +68,16 @@ public class OIDCRoleMappingPostLoginAction implements LifecycleAction {
 		LOG.debug("OIDC Access token: {}", accessToken);
 	
 		String openIdProviderName = openIdConnectSession.getOpenIdProviderName();
+				
+		OpenIdConnectProvider<OIDCClientMetadata, OIDCProviderMetadata> openIdConnectProvider;
+		try {
+			openIdConnectProvider = _openIdConnectProviderRegistry.findOpenIdConnectProvider(
+			_portal.getCompanyId(lifecycleEvent.getRequest()), openIdProviderName);
+		} catch (ProviderException e) {
+			LOG.error("Failed to get OpenID Connect Provider", e);
+			return;
+		}
 		
-		OpenIdConnectProvider<OIDCClientMetadata, OIDCProviderMetadata> openIdConnectProvider = 
-				_openIdConnectProviderRegistry.getOpenIdConnectProvider(openIdProviderName);
 		
 		URI userInfoEndpointURI = null;
 		
@@ -95,4 +118,10 @@ public class OIDCRoleMappingPostLoginAction implements LifecycleAction {
 
 	@Reference
 	private OpenIdConnectProviderRegistry<OIDCClientMetadata, OIDCProviderMetadata> _openIdConnectProviderRegistry;
+	
+	@Reference
+	private Portal _portal;
+	
+	@Reference
+	private OpenIdConnectSessionProvider _openIdConnectSessionProvider;
 }
