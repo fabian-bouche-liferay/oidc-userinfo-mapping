@@ -15,3 +15,5 @@ Then, all you need to do is to retrieve the Access Token from the OIDC session i
 use it to make an HTTP request to the OpenID Provider's UserInfo endpoint: that's the second endpoint.
 
 This module was tested with Liferay DXP 7.2 SP3 and Keycloak 11.0.0 acting as the OpenId Provider.
+
+This code works for DXP 7.2. Please check branch "new" for Liferay DXP >= 7.3
